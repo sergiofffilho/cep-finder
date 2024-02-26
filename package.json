@@ -1,5 +1,5 @@
 {
-  "name": "cpf-finder",
+  "name": "cep-finder",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
