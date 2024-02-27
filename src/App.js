@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 function App() {
   const [adress, setAdress] = useState({})
+  const [adresses, setAdresses] = useState([])
 
   function handleCep(event){
     const cep = event.target.value
@@ -15,16 +16,35 @@ function App() {
       fetch(`https://viacep.com.br/ws/${cep}/json/`)
       .then(response => response.json())
       .then(data => {
+        if(data.erro){
+          setAdress(oldAdress => {
+            return {
+              ...oldAdress,
+              cep: data.erro
+            }
+          })
+        }
+        else{
+          setAdresses(oldAdresses => [...oldAdresses, cep])
+
+          setAdress(oldAdress => {
+            return {
+              ...oldAdress,
+              rua: data.logradouro,
+              bairro: data.bairro,
+              localidade: data.localidade,
+              estado: data.uf,
+              ddd: data.ddd
+            }
+          })
+        }        
+      }).catch(() => {
         setAdress(oldAdress => {
           return {
             ...oldAdress,
-            rua: data.logradouro,
-            bairro: data.bairro,
-            localidade: data.localidade,
-            estado: data.uf,
-            ddd: data.ddd
+            cep: 'digite só números'
           }
-        })
+        })      
       })
     }
   }
@@ -37,7 +57,7 @@ function App() {
           <input
             placeholder='Digite aqui um cep'
             onChange={handleCep}/>
-            <h5>Cep: {adress.cep}</h5>
+            <h5>Cep: {adress.cep === 'true' ? 'cep inválido' : adress.cep }</h5>
           <ul>
             <li>Logradouro: {adress.rua ? adress.rua : '-'}</li>
             <li>Bairro: {adress.bairro ? adress.bairro : '-'}</li>
@@ -46,9 +66,19 @@ function App() {
             <li>DDD: {adress.ddd ? adress.ddd : '-'}</li>
           </ul>
         </section>
+        <section>
+        <h5>Ceps já buscados:</h5>
+        <ul>
+        {
+          adresses.map((cep, index) => {
+            return <li key={index}>{cep}</li>
+          })
+        }
+        </ul>
+        </section>
       </header>
     </div>
-  );
+  )
 }
 
 export default App;
